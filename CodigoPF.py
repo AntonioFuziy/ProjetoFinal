@@ -13,15 +13,16 @@ RED = (255, 0, 0)
 GREEN = (0, 255, 0)
 BLUE = (0, 0, 255)
 YELLOW = (255, 255, 0)
+
 class Player(pygame.sprite.Sprite):
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
         
-        personagem = pygame.image.load(path.join(img_dir,"Personagemteste.png")).convert_alpha()
+        personagem = pygame.image.load(path.join(img_dir,"PersonagemTeste.png")).convert_alpha()
         
         self.image = personagem
         
-        self.image = pygame.transform.scale(personagem,(70,100))
+        self.image = pygame.transform.scale(personagem,(80,100))
         
         self.image.set_colorkey(BLACK)
         
@@ -46,9 +47,17 @@ class Player(pygame.sprite.Sprite):
         
         if self.rect.top < 0:
             self.rect.top = 0
-        if self.rect.bottom > HEIGHT:
-            self.rect.bottom = HEIGHT
+#        if self.rect.top == HEIGHT - 102:
+ #           self.rect.top = HEIGHT - 87
+        if self.rect.bottom > HEIGHT - 87:
+            self.rect.bottom = HEIGHT - 87
     
+#    def jump(self):
+#        player.speedy = -5
+#        if self.rect.top == HEIGHT - 72:
+#            player.speedy = 7
+        #if self.rect.bottom = :
+        #    player.speedy = -7
 pygame.init()
 pygame.mixer.init()
 screen = pygame.display.set_mode((WIDTH,HEIGHT))
@@ -78,15 +87,25 @@ try:
             
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_LEFT:
-                    player.speedx = -10
+                    player.speedx = -7
                 if event.key == pygame.K_RIGHT:
-                    player.speedx = 10
+                    player.speedx = 7
+                if event.key == pygame.K_DOWN:
+                    player.speedy = 7
+                if event.key == pygame.K_UP:
+                    player.speedy = -5
+  #                  if self.rect.top == HEIGHT - 72:
+   #                     player.speedy = 7
                     
             if event.type == pygame.KEYUP:
                 if event.key == pygame.K_DOWN:
-                    player.speedy = 10
+                    player.speedy = 0
                 if event.key == pygame.K_UP:
-                    player.speedy = -10
+                    player.speedy = 0
+                if event.key == pygame.K_LEFT: 
+                    player.speedx = 0
+                if event.key == pygame.K_RIGHT:
+                    player.speedx = 0
         
         all_sprites.update()
                
