@@ -34,7 +34,7 @@ class Player(pygame.sprite.Sprite):
         
         self.rect = self.image.get_rect()
         
-        self.rect.centerx = 0
+        self.rect.centerx = WIDTH/2
         self.rect.bottom = HEIGHT - 87
         
         self.speedx = 0
@@ -70,7 +70,7 @@ class Mob(pygame.sprite.Sprite):
         
         mob_image = pygame.image.load(path.join(img_dir,'Goomba.png')).convert_alpha()
         
-        self.image = pygame.transform.scale(mob_image,(50,38))
+        self.image = pygame.transform.scale(mob_image,(50,40))
         
         self.rect = self.image.get_rect()
        
@@ -114,9 +114,9 @@ class Bullet(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
         
         bullet_image = pygame.image.load(path.join(img_dir,'Bala.png')).convert_alpha()
-        
-        self.image = pygame.transform.scale(bullet_image(10,3))
         self.image = bullet_image
+        
+        self.image = pygame.transform.scale(bullet_image,(50,40))
         
         self.image.set_colorkey(BLACK)
         
@@ -124,13 +124,12 @@ class Bullet(pygame.sprite.Sprite):
         
         self.rect.bottom = y
         self.rect.centerx = x
-        self.speedy = -5
+        self.speedx = 5
         
     def update(self):
-        self.rect.y += self.speedy
-        
-        # Se o tiro passar do inicio da tela, morre.
-        if self.rect.bottom < 0:
+        self.rect.x+= self.speedx
+
+        if self.rect.right < 0 or self.rect.left > WIDTH:
             self.kill()
     
         
@@ -138,7 +137,7 @@ pygame.init()
 pygame.mixer.init()
 screen = pygame.display.set_mode((WIDTH,HEIGHT))
 
-pygame.display.set_caption("Metalslonha")
+pygame.display.set_caption("MINEEEE!!!")
 
 clock = pygame.time.Clock()
 
@@ -154,7 +153,7 @@ mobs = pygame.sprite.Group()
 
 bullets = pygame.sprite.Group()
 
-for i in range(5):
+for i in range(2):
     m=Mob()
     all_sprites.add(m)
     mobs.add(m)
@@ -172,16 +171,18 @@ try:
             
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_a or event.key == pygame.K_LEFT:
-                    player.speedx -= 7
-                if event.key == pygame.K_d or event.key == pygame.K_RIGHT:
                     player.speedx += 7
+                    background_rect.x += 7
+                if event.key == pygame.K_d or event.key == pygame.K_RIGHT:
+                    player.speedx -= 7
+                    background_rect.x -= 7 
                 if event.key == pygame.K_w or event.key == pygame.K_UP:
                     player.speedy -= 7
                 if event.key == pygame.K_SPACE:
-                    bullet = Bullet(player.rect.centerx, player.rect.top)
+                    bullet = Bullet(player.rect.right, player.rect.centery)
                     all_sprites.add(bullet)
                     bullets.add(bullet)
-                    
+
             if event.type == pygame.KEYUP:
                 if event.key == pygame.K_w or event.key == pygame.K_UP:
                     player.speedy += 7
