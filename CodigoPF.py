@@ -17,23 +17,20 @@ BLUE = (0, 0, 255)
 YELLOW = (255, 255, 0)
 
 GRAVIDADE = -0.35
-
+VEL = 7
 VIDA = 3
 
 class Player(pygame.sprite.Sprite):
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
         
-        personagem = pygame.image.load(path.join(img_dir,"PersonagemTeste.png")).convert_alpha()
-        
+        #personagem = pygame.image.load(path.join(img_dir,"PersonagemTeste.png")).convert_alpha()
+        personagem = pygame.image.load(path.join(img_dir,"PersonagemTeste2.jpg")).convert()
         self.image = personagem
-        
-        self.image = pygame.transform.scale(personagem,(80,100))
-        
+        self.image = pygame.transform.scale(personagem,(60,75))
         self.image.set_colorkey(BLACK)
         
         self.rect = self.image.get_rect()
-        
         self.rect.centerx = WIDTH/2
         self.rect.bottom = HEIGHT - 87
         
@@ -71,11 +68,9 @@ class Mob(pygame.sprite.Sprite):
         mob_image = pygame.image.load(path.join(img_dir,'Goomba.png')).convert_alpha()
         
         self.image = pygame.transform.scale(mob_image,(50,40))
-        
-        self.rect = self.image.get_rect()
-       
         self.image.set_colorkey(BLACK)
         
+        self.rect = self.image.get_rect()
         self.rect.x = 990
         self.rect.y = HEIGHT - 122
         
@@ -142,6 +137,7 @@ pygame.display.set_caption("MINEEEE!!!")
 clock = pygame.time.Clock()
 
 background = pygame.image.load(path.join(img_dir,"Imagem de fundo.jpg"))
+#background = pygame.transform.scale(background)
 background_rect = background.get_rect()
 
 player = Player()
@@ -171,26 +167,26 @@ try:
             
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_a or event.key == pygame.K_LEFT:
-                    player.speedx += 7
-                    background_rect.x += 7
+                    background_rect.x += VEL
                 if event.key == pygame.K_d or event.key == pygame.K_RIGHT:
-                    player.speedx -= 7
-                    background_rect.x -= 7 
+                    background_rect.x -= VEL
                 if event.key == pygame.K_w or event.key == pygame.K_UP:
-                    player.speedy -= 7
+                    player.speedy -= VEL
+                    background_rect.y += VEL
+                
                 if event.key == pygame.K_SPACE:
                     bullet = Bullet(player.rect.right, player.rect.centery)
                     all_sprites.add(bullet)
                     bullets.add(bullet)
 
             if event.type == pygame.KEYUP:
-                if event.key == pygame.K_w or event.key == pygame.K_UP:
-                    player.speedy += 7
                 if event.key == pygame.K_a or event.key == pygame.K_LEFT: 
-                    player.speedx += 7
+                    background_rect.x += VEL
                 if event.key == pygame.K_d or event.key == pygame.K_RIGHT:
-                    player.speedx -= 7        
-                
+                    background_rect.x -= VEL
+                if event.key == pygame.K_w or event.key == pygame.K_UP:
+                    background_rect.y -= VEL
+                    
         all_sprites.update()
         
         hits = pygame.sprite.groupcollide(mobs, bullets, True, True)
