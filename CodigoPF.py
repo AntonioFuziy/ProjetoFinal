@@ -3,6 +3,7 @@ from os import path
 import random
 import time
 
+
 img_dir = path.join(path.dirname(__file__),'img')
 
 WIDTH = 995
@@ -12,6 +13,7 @@ FPS = 45
 SENTIDO = 1
 
 GROUND = HEIGHT - 120
+pontos=0
 
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
@@ -22,6 +24,7 @@ YELLOW = (255, 255, 0)
 
 GRAVIDADE = 2
 JUMP_SIZE = 30
+DELAY_TIRO = 1000 #milisegundos
 
 STILL = 0
 JUMPING = 1
@@ -34,25 +37,23 @@ bala_traz = 'BalaInvertida.png'
 personagem_frente = 'PersonagemTeste.png'
 personagem_traz = 'PersonagemTesteInvertido.png'
 block = 'bloco.png' 
+MONSTRO = 'PersonagemTesteInvertido.png'
 
 VIDA = 3
+
 
 class Player(pygame.sprite.Sprite):
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
-        
         self.state = STILL
         
         personagem = pygame.image.load(path.join(img_dir,personagem_frente)).convert_alpha()
         
         self.image = personagem
-        
         self.image = pygame.transform.scale(personagem,(80,100))
-        
         self.image.set_colorkey(BLACK)
         
         self.rect = self.image.get_rect()
-        
         self.rect.centerx = WIDTH/2
         self.rect.bottom = HEIGHT - 120
         
@@ -60,7 +61,13 @@ class Player(pygame.sprite.Sprite):
         self.speedy = 0
         
         self.radius =  int(self.rect.width * .85 / 2)
-        
+        self.health = 3
+
+    def jump(self):
+        if self.state == STILL:
+            self.speedy -= JUMP_SIZE
+            self.state = JUMPING
+
     def update(self):
         self.rect.x += self.speedx
         #self.jump()
@@ -83,11 +90,7 @@ class Player(pygame.sprite.Sprite):
             self.rect.bottom = GROUND
             self.speedy = 0
             self.state = STILL
-            
-    def jump(self):
-        if self.state == STILL:
-            self.speedy -= JUMP_SIZE
-            self.state = JUMPING        
+
 
 class Background(pygame.sprite.Sprite):
     def __init__(self):
@@ -110,22 +113,21 @@ class Background(pygame.sprite.Sprite):
 class Mob(pygame.sprite.Sprite):
     
     def __init__(self):
-        
         pygame.sprite.Sprite.__init__(self)
         
-        mob_image = pygame.image.load(path.join(img_dir,'Goomba.png')).convert_alpha()
+        mob_image = pygame.image.load(path.join(img_dir,MONSTRO)).convert_alpha()
         
         self.image = pygame.transform.scale(mob_image,(70,60))
-        
-        self.rect = self.image.get_rect()
-       
         self.image.set_colorkey(BLACK)
-        
+
+        self.rect = self.image.get_rect()
         self.rect.x = 990
         self.rect.y = HEIGHT - 120
         
         self.speedx = 3
         self.speedy = 0
+
+        self.health = 100
         
     def update(self):
         self.rect.x += self.speedx
@@ -143,20 +145,18 @@ class Mob(pygame.sprite.Sprite):
 class Bullet(pygame.sprite.Sprite):
     
     def __init__(self, x, y, speedx):
-        
         pygame.sprite.Sprite.__init__(self)
         
         bullet_image = pygame.image.load(path.join(img_dir,bala_frente)).convert_alpha()
+        
         self.image = bullet_image
-        
         self.image = pygame.transform.scale(bullet_image,(50,40))
-        
         self.image.set_colorkey(BLACK)
         
         self.rect = self.image.get_rect()
-        
         self.rect.bottom = y
         self.rect.centerx = x
+
         self.speedx = speedx
         
     def update(self):
@@ -184,8 +184,8 @@ class Blocks(pygame.sprite.Sprite):
         self.speedx = 0
         
     def update(self):
-        self.rect.x += self.speedx
-        
+        self.rect.x += self.speed
+
 pygame.init()
 pygame.mixer.init()
 screen = pygame.display.set_mode((WIDTH,HEIGHT))
@@ -193,24 +193,23 @@ screen = pygame.display.set_mode((WIDTH,HEIGHT))
 pygame.display.set_caption("MINEEEE!!!")
 
 clock = pygame.time.Clock()
+previous_time = pygame.time.get_ticks()
 
 player = Player()
 background = Background()
-#mobs = Mob()
 
 all_sprites = pygame.sprite.Group()
 all_sprites.add(background) 
 all_sprites.add(player)
-#all_sprites.add(mobs) 
 mobs = pygame.sprite.Group()
 bullets = pygame.sprite.Group()
 
-#world_blocks = pygame.sprite.Group()
+font = pygame.font.Font("C:\Windows\Fonts\Arial.ttf", 32)
+text = font.render("Pontos: {0}".format(pontos), True, YELLOW)
+textRect = text.get_rect()
+textRect.center = (WIDTH // 2, 50)
 
-#for bloco in range(INITIAL_BLOCKS):
-#    block_x
-
-for i in range(2):
+for i in range(1):
     m=Mob()
     all_sprites.add(m)
     mobs.add(m)
@@ -218,9 +217,8 @@ for i in range(2):
 try:
     running = True
     while running:
-        
         clock.tick(FPS)
-        
+
         for event in pygame.event.get():
 
             if event.type == pygame.QUIT:
@@ -246,37 +244,49 @@ try:
                 if event.key == pygame.K_UP:
                     player.jump()
                 
-                if SENTIDO == 1:
-                    if event.key == pygame.K_SPACE:
-                        
-                        bullet = Bullet(player.rect.right, player.rect.centery, 7)
-                        bullet.bullet_image = pygame.image.load(path.join(img_dir, bala_frente)).convert_alpha()
-                        all_sprites.add(bullet)
-                        bullets.add(bullet)
-                       
-                if SENTIDO == 2:
-                    if event.key == pygame.K_SPACE:
-                        bullet = Bullet(player.rect.left, player.rect.centery, -7)
-                        bullet.bullet_image = pygame.image.load(path.join(img_dir, bala_traz)).convert_alpha()
-                        all_sprites.add(bullet)
-                        bullets.add(bullet)
+                if event.key == pygame.K_SPACE:
+                    current_time = pygame.time.get_ticks()
+                    if current_time - previous_time > DELAY_TIRO:
+                        previous_time = current_time
+                        if SENTIDO == 1:
+                            bullet = Bullet(player.rect.right, player.rect.centery, 7)
+                            bullet.bullet_image = pygame.image.load(path.join(img_dir, bala_frente)).convert_alpha()
+                            all_sprites.add(bullet)
+                            bullets.add(bullet)
+                           
+                        if SENTIDO == 2:
+                            bullet = Bullet(player.rect.left, player.rect.centery, -7)
+                            bullet.bullet_image = pygame.image.load(path.join(img_dir, bala_traz)).convert_alpha()
+                            all_sprites.add(bullet)
+                            bullets.add(bullet)
  
             if event.type == pygame.KEYUP:
-                    
                 if event.key == pygame.K_LEFT: 
                     player.speedx = 0
                     background.speedx = 0
                 if event.key == pygame.K_RIGHT:
                     player.speedx = 0
                     background.speedx = 0
+
         all_sprites.update()
         
-        hits = pygame.sprite.groupcollide(mobs, bullets, True, True)
-        for hit in hits:  
-            m = Mob()      
-            all_sprites.add(m)
-            mobs.add(m)
-            
+        hits = pygame.sprite.groupcollide(mobs, bullets, False, True)
+        for m in hits:
+            m.health -= 50
+
+            if m.health <= 0:
+                m.kill()
+                pontos += 5
+                m = Mob()
+                all_sprites.add(m)
+                mobs.add(m)
+
+            pontos+=1
+            print(pontos)
+            text = font.render("Pontos: {0}".format(pontos), True, YELLOW)
+            textRect = text.get_rect()
+            textRect.center = (WIDTH // 2, 50)
+
         hits = pygame.sprite.spritecollide(player, mobs, False, pygame.sprite.collide_circle)
         if hits:
             time.sleep(1)
@@ -284,6 +294,7 @@ try:
         
         screen.fill(BLACK)
         screen.blit(background.image, background.rect)
+        screen.blit(text, textRect)
         all_sprites.draw(screen)
         pygame.display.flip()
 
