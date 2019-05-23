@@ -9,7 +9,9 @@ WIDTH = 995
 HEIGHT = 654
 FPS = 45
 
-GROUND = HEIGHT - 87
+SENTIDO = 1
+
+GROUND = HEIGHT - 120
 
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
@@ -25,10 +27,13 @@ STILL = 0
 JUMPING = 1
 FALLING = 2
 
-lista_bala_frente = ['Bala.png']
-lista_bala_traz = ['BalaInvertida.png']
-lista_personagem_frente = ['PersonagemTeste.png']
-lista_personagem_traz = ['PersonagemTesteInvertido.png']
+INITIAL_BLOCKS = 5
+
+bala_frente = 'Bala.png'
+bala_traz = 'BalaInvertida.png'
+personagem_frente = 'PersonagemTeste.png'
+personagem_traz = 'PersonagemTesteInvertido.png'
+block = 'bloco.png' 
 
 VIDA = 3
 
@@ -38,7 +43,7 @@ class Player(pygame.sprite.Sprite):
         
         self.state = STILL
         
-        personagem = pygame.image.load(path.join(img_dir,lista_personagem_frente[0])).convert_alpha()
+        personagem = pygame.image.load(path.join(img_dir,personagem_frente)).convert_alpha()
         
         self.image = personagem
         
@@ -49,7 +54,7 @@ class Player(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         
         self.rect.centerx = WIDTH/2
-        self.rect.bottom = HEIGHT - 87
+        self.rect.bottom = HEIGHT - 120
         
         self.speedx = 0
         self.speedy = 0
@@ -82,27 +87,13 @@ class Player(pygame.sprite.Sprite):
     def jump(self):
         if self.state == STILL:
             self.speedy -= JUMP_SIZE
-            self.state = JUMPING
-    #if event.type == pygame.KEYDOWN and event.key == pygame.K_LEFT:     
-        #    personagem = pygame.image.load(path.join(img_dir,(lista_sprites[1])))
-         #   self.image = personagem
-          #  self.image = pygame.transform.scale(personagem,(80,100))
-        #if event.type == pygame.KEYDOWN and event.key == pygame.K_RIGHT:
-         #   personagem = pygame.image.load(path.join(img_dir,(lista_sprites[0])))
-          #  self.image = personagem
-           # self.image = pygame.transform.scale(personagem,(80,100))
-            
-    #def jump(self):
-     #   self.speedy -= GRAVIDADE
-      #  self.rect.y += self.speedy
-        
-        
+            self.state = JUMPING        
 
 class Background(pygame.sprite.Sprite):
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
         
-        BACKGROUND = pygame.image.load(path.join(img_dir,"Imagem de fundo.jpg")).convert()
+        BACKGROUND = pygame.image.load(path.join(img_dir,"Cenario.png")).convert()
         self.image = BACKGROUND
         self.image = pygame.transform.scale(BACKGROUND,(1200,HEIGHT))
         self.image.set_colorkey(BLACK)
@@ -131,19 +122,14 @@ class Mob(pygame.sprite.Sprite):
         self.image.set_colorkey(BLACK)
         
         self.rect.x = 990
-        self.rect.y = HEIGHT - 122
+        self.rect.y = HEIGHT - 120
         
         self.speedx = 3
         self.speedy = 0
         
     def update(self):
         self.rect.x += self.speedx
-        self.rect.y += self.speedy
-        
-        #pulo = random.randint(1,5)
-        
-        #if pulo == 1:
-         #   self.jump()
+        self.rect.y += self.speedy        
         
         if self.rect.right > WIDTH:
             self.rect.right = WIDTH
@@ -151,15 +137,8 @@ class Mob(pygame.sprite.Sprite):
         if self.rect.left < 0:
             self.rect.left = 0
             self.speedx = -self.speedx
-        if self.rect.bottom > HEIGHT - 88:
-            self.rect.bottom = HEIGHT - 88
-            
-    #def jump(self):
-        #self.speedy -= GRAVIDADE
-        #tempo_de_pulo=time.time()
-        #if tempo_de_pulo == 1.2:
-        #    self.speedy += GRAVIDADE
-       # self.rect.y += self.speedy
+        if self.rect.bottom > HEIGHT - 120:
+            self.rect.bottom = HEIGHT - 120
 
 class Bullet(pygame.sprite.Sprite):
     
@@ -167,7 +146,7 @@ class Bullet(pygame.sprite.Sprite):
         
         pygame.sprite.Sprite.__init__(self)
         
-        bullet_image = pygame.image.load(path.join(img_dir,lista_bala_frente)).convert_alpha()
+        bullet_image = pygame.image.load(path.join(img_dir,bala_frente)).convert_alpha()
         self.image = bullet_image
         
         self.image = pygame.transform.scale(bullet_image,(50,40))
@@ -178,14 +157,35 @@ class Bullet(pygame.sprite.Sprite):
         
         self.rect.bottom = y
         self.rect.centerx = x
-        self.speedx = self.speedx
+        self.speedx = speedx
         
     def update(self):
         self.rect.x += self.speedx
 
         if self.rect.right < 0 or self.rect.left > WIDTH:
             self.kill()        
+        
+class Blocks(pygame.sprite.Sprite):
+    def __init__(self,block_image,x,y):
+        pygame.sprite.Sprite.__init__(self)
+        
+        block_image = pygame.image.load(path.join(img_dir,block)).convert_alpha()
+        self.image = block_image
+        
+        self.image = pygame.transform.scale(block_image(30,30))
+        
+        self.image.set_colorkey(BLACK)
 
+        self.rect = self.get_rect()
+        
+        self.rect.x = x
+        self.rect.y = y
+        
+        self.speedx = 0
+        
+    def update(self):
+        self.rect.x += self.speedx
+        
 pygame.init()
 pygame.mixer.init()
 screen = pygame.display.set_mode((WIDTH,HEIGHT))
@@ -193,9 +193,6 @@ screen = pygame.display.set_mode((WIDTH,HEIGHT))
 pygame.display.set_caption("MINEEEE!!!")
 
 clock = pygame.time.Clock()
-
-#background = pygame.image.load(path.join(img_dir,"Imagem de fundo.jpg"))
-#background_rect = background.get_rect()
 
 player = Player()
 background = Background()
@@ -207,7 +204,11 @@ all_sprites.add(player)
 #all_sprites.add(mobs) 
 mobs = pygame.sprite.Group()
 bullets = pygame.sprite.Group()
-#background = pygame.sprite.Group()
+
+#world_blocks = pygame.sprite.Group()
+
+#for bloco in range(INITIAL_BLOCKS):
+#    block_x
 
 for i in range(2):
     m=Mob()
@@ -227,54 +228,47 @@ try:
             
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_RIGHT:
-                    player.speedx = 5
+                    SENTIDO = 1
+                    player.speedx += 5
                     background.speedx -= 7
-                    personagem = pygame.image.load(path.join(img_dir,(lista_personagem_frente[0])))
+                    personagem = pygame.image.load(path.join(img_dir, personagem_frente))
                     player.image = personagem
                     player.image = pygame.transform.scale(personagem,(80,100))
-                    #mobs.speedx -= 7
+
                 if event.key == pygame.K_LEFT:
-                    player.speedx = -5
+                    SENTIDO = 2
+                    player.speedx -= 5
                     background.speedx += 7
-                    personagem = pygame.image.load(path.join(img_dir,(lista_personagem_traz[0])))
+                    personagem = pygame.image.load(path.join(img_dir, personagem_traz))
                     player.image = personagem
                     player.image = pygame.transform.scale(personagem,(80,100))
         
-                    #mobs.speedx += 7 
                 if event.key == pygame.K_UP:
                     player.jump()
-                    #player.speedy -= 7
                 
-                if personagem == pygame.image.load(path.join(img_dir,(lista_personagem_frente[0]))):
-                    if event.key == pygame.K_SPACE:     
-                        bullet_image = pygame.image.load(path.join(img_dir,lista_bala_frente[0])).convert_alpha()
-                        bullets.transform.scale(bullet_image,(50,40))
-                        bullets.speedx = 7 
-                        bullet = Bullet(player.rect.right, player.rect.centery)
-                        all_sprites.add(bullet)
-                        bullets.add(bullet)
-                        
-                if personagem == pygame.image.load(path.join(img_dir,(lista_personagem_traz[0]))):
+                if SENTIDO == 1:
                     if event.key == pygame.K_SPACE:
-                        bullet_image = pygame.image.load(path.join(img_dir,lista_bala_traz[0])).convert_alpha()
-                        bullets.transform.scale(bullet_image,(50,40))
-                        bullets.speedx = -7
-                        bullet = Bullet(player.rect.left, player.rect.centery)
+                        
+                        bullet = Bullet(player.rect.right, player.rect.centery, 7)
+                        bullet.bullet_image = pygame.image.load(path.join(img_dir, bala_frente)).convert_alpha()
                         all_sprites.add(bullet)
                         bullets.add(bullet)
-
+                       
+                if SENTIDO == 2:
+                    if event.key == pygame.K_SPACE:
+                        bullet = Bullet(player.rect.left, player.rect.centery, -7)
+                        bullet.bullet_image = pygame.image.load(path.join(img_dir, bala_traz)).convert_alpha()
+                        all_sprites.add(bullet)
+                        bullets.add(bullet)
+ 
             if event.type == pygame.KEYUP:
-                #if event.key == pygame.K_UP:
                     
-                    #player.speedy += 7 
                 if event.key == pygame.K_LEFT: 
                     player.speedx = 0
                     background.speedx = 0
-                    #mobs.speedx = 2
                 if event.key == pygame.K_RIGHT:
                     player.speedx = 0
                     background.speedx = 0
-                    #mobs.speedx = 2
         all_sprites.update()
         
         hits = pygame.sprite.groupcollide(mobs, bullets, True, True)
@@ -292,7 +286,6 @@ try:
         screen.blit(background.image, background.rect)
         all_sprites.draw(screen)
         pygame.display.flip()
-        #pygame.display.update()
-        
+
 finally:
     pygame.quit()
