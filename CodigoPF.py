@@ -37,7 +37,7 @@ bala_traz = 'BalaInvertida.png'
 personagem_frente = 'PersonagemTeste.png'
 personagem_traz = 'PersonagemTesteInvertido.png'
 block = 'bloco.png' 
-MONSTRO = 'PersonagemTesteInvertido.png'
+LISTA_MONSTROS = ['PersonagemTesteInvertido.png','Corsinha.jpg','Moeda.png']
 
 VIDA = 3
 
@@ -115,7 +115,7 @@ class Mob(pygame.sprite.Sprite):
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
         
-        mob_image = pygame.image.load(path.join(img_dir,MONSTRO)).convert_alpha()
+        mob_image = pygame.image.load(path.join(img_dir,LISTA_MONSTROS[0])).convert_alpha()
         
         self.image = pygame.transform.scale(mob_image,(70,60))
         self.image.set_colorkey(BLACK)
@@ -209,7 +209,7 @@ text = font.render("Pontos: {0}".format(pontos), True, YELLOW)
 textRect = text.get_rect()
 textRect.center = (WIDTH // 2, 50)
 
-for i in range(1):
+for i in range(2):
     m=Mob()
     all_sprites.add(m)
     mobs.add(m)
@@ -250,13 +250,17 @@ try:
                         previous_time = current_time
                         if SENTIDO == 1:
                             bullet = Bullet(player.rect.right, player.rect.centery, 7)
-                            bullet.bullet_image = pygame.image.load(path.join(img_dir, bala_frente)).convert_alpha()
+                            bala = pygame.image.load(path.join(img_dir, bala_frente)).convert_alpha() 
+                            bullet.image = bala
+                            bullet.image = pygame.transform.scale(bullet.image,(50,40))
                             all_sprites.add(bullet)
                             bullets.add(bullet)
                            
                         if SENTIDO == 2:
                             bullet = Bullet(player.rect.left, player.rect.centery, -7)
-                            bullet.bullet_image = pygame.image.load(path.join(img_dir, bala_traz)).convert_alpha()
+                            bala = pygame.image.load(path.join(img_dir, bala_traz)).convert_alpha() 
+                            bullet.image = bala
+                            bullet.image = pygame.transform.scale(bullet.image,(50,40))
                             all_sprites.add(bullet)
                             bullets.add(bullet)
  
@@ -276,8 +280,11 @@ try:
 
             if m.health <= 0:
                 m.kill()
-                pontos += 5
+                pontos += 5    
                 m = Mob()
+                sorteio = random.randint(0,2)
+                m.image = pygame.image.load(path.join(img_dir,(LISTA_MONSTROS[sorteio])))
+                m.image = pygame.transform.scale(m.image,(50,40))
                 all_sprites.add(m)
                 mobs.add(m)
 
