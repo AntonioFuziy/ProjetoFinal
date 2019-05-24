@@ -36,8 +36,10 @@ bala_frente = 'Bala.png'
 bala_traz = 'BalaInvertida.png'
 personagem_frente = 'PersonagemTeste.png'
 personagem_traz = 'PersonagemTesteInvertido.png'
-block = 'bloco.png' 
-LISTA_MONSTROS = ['PersonagemTesteInvertido.png','Corsinha.jpg','Moeda.png']
+block = 'bloco.png'
+
+LISTA_MONSTROS = ['MobEspadaStop.png','Corsinha.jpg']
+LISTA_MONSTROS_INVERTIDO = ['MobEspada.png','CorsinhaInvertido.jpg']
 
 VIDA = 3
 
@@ -112,7 +114,7 @@ class Background(pygame.sprite.Sprite):
                 
 class Mob(pygame.sprite.Sprite):
     
-    def __init__(self):
+    def __init__(self, player):
         pygame.sprite.Sprite.__init__(self)
         
         mob_image = pygame.image.load(path.join(img_dir,LISTA_MONSTROS[0])).convert_alpha()
@@ -129,18 +131,41 @@ class Mob(pygame.sprite.Sprite):
 
         self.health = 100
         
+        self.player = player
+        
     def update(self):
+        
         self.rect.x += self.speedx
         self.rect.y += self.speedy        
         
         if self.rect.right > WIDTH:
             self.rect.right = WIDTH
             self.speedx = -self.speedx
+        
         if self.rect.left < 0:
             self.rect.left = 0
             self.speedx = -self.speedx
+        
         if self.rect.bottom > HEIGHT - 120:
             self.rect.bottom = HEIGHT - 120
+        
+        if self.speedx >= 0:
+            mob_image = pygame.image.load(path.join(img_dir,(LISTA_MONSTROS[0]))).convert()
+            self.image = mob_image
+            self.image = pygame.transform.scale(mob_image,(50,40))
+        
+        if self.speedx < 0:
+            mob_image = pygame.image.load(path.join(img_dir,(LISTA_MONSTROS[0]))).convert()
+            self.image = mob_image
+            self.image = pygame.transform.scale(mob_image,(50,40))
+            
+        if abs(player.rect.centerx - self.rect.centerx) <= 90:
+            self.speedx = 3
+        if abs(self.rect.centerx - player.rect.centerx) < 90:
+            self.speedx = 0
+        
+        
+        #if self.health <= 0:
 
 class Bullet(pygame.sprite.Sprite):
     
@@ -194,7 +219,7 @@ pygame.display.set_caption("MINEEEE!!!")
 
 clock = pygame.time.Clock()
 previous_time = pygame.time.get_ticks()
-
+previous_time2 = pygame.time.get_ticks()
 player = Player()
 background = Background()
 
@@ -209,10 +234,10 @@ text = font.render("Pontos: {0}".format(pontos), True, YELLOW)
 textRect = text.get_rect()
 textRect.center = (WIDTH // 2, 50)
 
-for i in range(2):
-    m=Mob()
-    all_sprites.add(m)
-    mobs.add(m)
+for i in range(1):
+    mob=Mob(player)
+    all_sprites.add(mob)
+    mobs.add(mob)
 
 try:
     running = True
@@ -275,30 +300,38 @@ try:
         all_sprites.update()
         
         hits = pygame.sprite.groupcollide(mobs, bullets, False, True)
-        for m in hits:
-            m.health -= 50
-
-            if m.health <= 0:
-                m.kill()
-                pontos += 5    
-                m = Mob()
-                sorteio = random.randint(0,2)
-                m.image = pygame.image.load(path.join(img_dir,(LISTA_MONSTROS[sorteio])))
-                m.image = pygame.transform.scale(m.image,(50,40))
-                all_sprites.add(m)
-                mobs.add(m)
-
-            pontos+=1
-            print(pontos)
+        for mob in hits:
+            mob.health -= 50
+            if mob.health <= 0:
+                mob.kill()
+                pontos += 5
+                mob=Mob(player)
+                #all_sprites.add(mob)
+                #mobs.add(mob)
             text = font.render("Pontos: {0}".format(pontos), True, YELLOW)
             textRect = text.get_rect()
             textRect.center = (WIDTH // 2, 50)
 
+        current_time = pygame.time.get_ticks()
+        if len(mobs) < 1 and current_time - previous_time2 > 5000:
+            previous_time2 = current_time
+            mob.image = pygame.image.load(path.join(img_dir,(LISTA_MONSTROS[1])))
+            mob.image = pygame.transform.scale(mob.image,(50,40))
+            all_sprites.add(mob)
+            mobs.add(mob)
+            
         hits = pygame.sprite.spritecollide(player, mobs, False, pygame.sprite.collide_circle)
         if hits:
-            time.sleep(1)
+            mob.image = pygame.image.load(path.join(img_dir,('MobEspada.png'))).convert_alpha()
+            MobEspada = mob.image
+            mob.image = pygame.transform.scale(MobEspada,(50,40))
+            all_sprites.add(mob)
+            mobs.add(mob)
+            #mob.speedx = 0
+            #mob.rect.x += 100
+            #time.sleep(1)   
             running = False
-        
+            
         screen.fill(BLACK)
         screen.blit(background.image, background.rect)
         screen.blit(text, textRect)
