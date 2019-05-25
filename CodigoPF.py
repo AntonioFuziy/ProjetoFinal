@@ -111,7 +111,14 @@ class Background(pygame.sprite.Sprite):
         
     def update(self):
         self.rect.x += self.speedx
-                
+        
+        if self.rect.left > 0:
+            self.rect.left = 0
+        if self.rect.right < WIDTH:
+            self.rect.right = WIDTH
+
+        print(self.rect,self.speedx)
+
 class Mob(pygame.sprite.Sprite):
     
     def __init__(self, player):
@@ -150,20 +157,19 @@ class Mob(pygame.sprite.Sprite):
             self.rect.bottom = HEIGHT - 120
         
         if self.speedx >= 0:
-            mob_image = pygame.image.load(path.join(img_dir,(LISTA_MONSTROS[0]))).convert()
+            mob_image = pygame.image.load(path.join(img_dir,(LISTA_MONSTROS[0]))).convert_alpha()
             self.image = mob_image
             self.image = pygame.transform.scale(mob_image,(50,40))
         
         if self.speedx < 0:
-            mob_image = pygame.image.load(path.join(img_dir,(LISTA_MONSTROS[0]))).convert()
+            mob_image = pygame.image.load(path.join(img_dir,(LISTA_MONSTROS[0]))).convert_alpha()
             self.image = mob_image
             self.image = pygame.transform.scale(mob_image,(50,40))
             
-        if abs(player.rect.centerx - self.rect.centerx) <= 90:
-            self.speedx = 3
         if abs(self.rect.centerx - player.rect.centerx) < 90:
-            self.speedx = 0
-        
+           self.speedx = 0
+        if abs(self.rect.centerx - player.rect.centerx) >= 90:
+            self.speedx = -3
         
         #if self.health <= 0:
 
@@ -196,13 +202,10 @@ class Blocks(pygame.sprite.Sprite):
         
         block_image = pygame.image.load(path.join(img_dir,block)).convert_alpha()
         self.image = block_image
-        
         self.image = pygame.transform.scale(block_image(30,30))
-        
         self.image.set_colorkey(BLACK)
 
         self.rect = self.get_rect()
-        
         self.rect.x = x
         self.rect.y = y
         
