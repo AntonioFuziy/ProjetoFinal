@@ -1,3 +1,4 @@
+
 import pygame
 from os import path
 import random
@@ -6,27 +7,28 @@ import time
 
 img_dir = path.join(path.dirname(__file__),'img')
 
-WIDTH = 995
+WIDTH  = 995
 HEIGHT = 654
-FPS = 45
+FPS    = 45
 
 SENTIDO = 1
 
 GROUND = HEIGHT - 120
-pontos=0
+PONTOS = 0
 
-WHITE = (255, 255, 255)
-BLACK = (0, 0, 0)
-RED = (255, 0, 0)
-GREEN = (0, 255, 0)
-BLUE = (0, 0, 255)
+WHITE  = (255, 255, 255)
+BLACK  = (0, 0, 0)
+RED    = (255, 0, 0)
+GREEN  = (0, 255, 0)
+BLUE   = (0, 0, 255)
 YELLOW = (255, 255, 0)
 
-GRAVIDADE = 2
-JUMP_SIZE = 30
-DELAY_TIRO = 1000 #milisegundos
+GRAVIDADE  = 2
+JUMP_SIZE  = 30
+DELAY_TIRO = 1000 # milisegundos
+DELAY_HIT  = 5000 # milisegundos
 
-STILL = 0
+STILL   = 0
 JUMPING = 1
 FALLING = 2
 
@@ -118,7 +120,7 @@ class Background(pygame.sprite.Sprite):
         if self.rect.right < WIDTH:
             self.rect.right = WIDTH
 
-        print(self.rect,self.speedx)
+        #print(self.rect,self.speedx)
 
 class Mob(pygame.sprite.Sprite):
     
@@ -252,6 +254,7 @@ pygame.display.set_caption("MINEEEE!!!")
 clock = pygame.time.Clock()
 previous_time = pygame.time.get_ticks()
 previous_time2 = pygame.time.get_ticks()
+previous_time3 = pygame.time.get_ticks()
 player = Player()
 background = Background()
 
@@ -263,7 +266,7 @@ bullets = pygame.sprite.Group()
 aliados = pygame.sprite.Group()
 
 font = pygame.font.Font("C:\Windows\Fonts\Arial.ttf", 32)
-text = font.render("Pontos: {0}".format(pontos), True, YELLOW)
+text = font.render("Pontos: {0}".format(PONTOS), True, YELLOW)
 textRect = text.get_rect()
 textRect.center = (WIDTH // 2, 50)
 
@@ -344,11 +347,11 @@ try:
             mob.health -= 50
             if mob.health <= 0:
                 mob.kill()
-                pontos += 5
+                PONTOS += 5
                 mob=Mob(player)
                 #all_sprites.add(mob)
                 #mobs.add(mob)
-            text = font.render("Pontos: {0}".format(pontos), True, YELLOW)
+            text = font.render("Pontos: {0}".format(PONTOS), True, YELLOW)
             textRect = text.get_rect()
             textRect.center = (WIDTH // 2, 50)
 
@@ -368,6 +371,14 @@ try:
             
         hits = pygame.sprite.spritecollide(player,mobs,False,pygame.sprite.collide_circle)
         if hits:
+            current_time2 = pygame.time.get_ticks()
+            if current_time2 - previous_time3 > DELAY_HIT and VIDA > 0:
+                previous_time3 = current_time2
+                VIDA -= 1
+                #print(current_time2 - previous_time3)
+                print(VIDA)
+            if VIDA <= 0:
+                running = False
             mob.image = pygame.image.load(path.join(img_dir,('MobEspada.png'))).convert_alpha()
             MobEspada = mob.image
             mob.image = pygame.transform.scale(MobEspada,(50,40))
@@ -375,8 +386,7 @@ try:
             mobs.add(mob)
             #mob.speedx = 0
             #mob.rect.x += 100
-            #time.sleep(1)   
-            running = False
+            #time.sleep(1)
             
         screen.fill(BLACK)
         screen.blit(background.image, background.rect)
