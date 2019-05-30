@@ -40,6 +40,7 @@ block = 'bloco.png'
 
 LISTA_MONSTROS = ['MobEspadaStop.png','Corsinha.jpg']
 LISTA_MONSTROS_INVERTIDO = ['MobEspada.png','CorsinhaInvertido.jpg']
+LISTA_ALIADOS = ['CorsinhaInvertido.jpg']
 
 VIDA = 3
 
@@ -173,6 +174,34 @@ class Mob(pygame.sprite.Sprite):
         
         #if self.health <= 0:
 
+class Mob_aliado(pygame.sprite.Sprite):
+    def __init__(self):
+        pygame.sprite.Sprite.__init__(self)
+        
+        aliado_image = pygame.image.load(path.join(img_dir,(LISTA_ALIADOS[0]))).convert_alpha()
+        
+        self.image = aliado_image
+        
+        self.image = pygame.transform.scale(aliado_image,(70,60))
+
+        self.image.set_colorkey(BLACK)
+        
+        self.rect = self.image.get_rect()
+        
+        self.rect.x = 0
+        self.rect.y = HEIGHT - 120
+        
+        self.speedx = 3
+        
+    def update(self):
+        
+        self.rect.x += self.speedx
+        
+        if self.rect.bottom > HEIGHT - 120:
+            self.rect.bottom = HEIGHT - 120
+        if self.rect.right > WIDTH:
+            self.rect.right = WIDTH
+        
 class Bullet(pygame.sprite.Sprite):
     
     def __init__(self, x, y, speedx):
@@ -231,6 +260,7 @@ all_sprites.add(background)
 all_sprites.add(player)
 mobs = pygame.sprite.Group()
 bullets = pygame.sprite.Group()
+aliados = pygame.sprite.Group()
 
 font = pygame.font.Font("C:\Windows\Fonts\Arial.ttf", 32)
 text = font.render("Pontos: {0}".format(pontos), True, YELLOW)
@@ -291,7 +321,14 @@ try:
                             bullet.image = pygame.transform.scale(bullet.image,(50,40))
                             all_sprites.add(bullet)
                             bullets.add(bullet)
- 
+                        
+                if event.key == pygame.K_w:
+                    #aliado_image = pygame.image.load(path.join(img_dir,(LISTA_ALIADOS[0]))).convert_alpha()
+                    #Mob_aliado.image = pygame.transform.scale(Mob_aliado.image,(70,60))
+                    aliado = Mob_aliado()
+                    all_sprites.add(aliado)
+                    aliados.add(aliado)
+                        
             if event.type == pygame.KEYUP:
                 if event.key == pygame.K_LEFT: 
                     player.speedx = 0
@@ -299,7 +336,7 @@ try:
                 if event.key == pygame.K_RIGHT:
                     player.speedx = 0
                     background.speedx = 0
-
+        
         all_sprites.update()
         
         hits = pygame.sprite.groupcollide(mobs, bullets, False, True)
@@ -318,12 +355,18 @@ try:
         current_time = pygame.time.get_ticks()
         if len(mobs) < 1 and current_time - previous_time2 > 5000:
             previous_time2 = current_time
+            mob=Mob(player)
             mob.image = pygame.image.load(path.join(img_dir,(LISTA_MONSTROS[1])))
             mob.image = pygame.transform.scale(mob.image,(50,40))
             all_sprites.add(mob)
             mobs.add(mob)
+        
+        hits = pygame.sprite.groupcollide(mobs,aliados,True,False)
+        if hits:
+            mob.kill()
+            pontos += 5
             
-        hits = pygame.sprite.spritecollide(player, mobs, False, pygame.sprite.collide_circle)
+        hits = pygame.sprite.spritecollide(player,mobs,False,pygame.sprite.collide_circle)
         if hits:
             mob.image = pygame.image.load(path.join(img_dir,('MobEspada.png'))).convert_alpha()
             MobEspada = mob.image
