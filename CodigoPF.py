@@ -332,15 +332,15 @@ try:
                             bullet.image = pygame.transform.scale(bullet.image,(50,40))
                             all_sprites.add(bullet)
                             bullets.add(bullet)
-            if PONTOS >= 5:        
                 if event.key == pygame.K_w:
-                    #aliado_image = pygame.image.load(path.join(img_dir,(LISTA_ALIADOS[0]))).convert_alpha()
-                    #Mob_aliado.image = pygame.transform.scale(Mob_aliado.image,(70,60))
-                    aliado = Mob_aliado()
-                    all_sprites.add(aliado)
-                    aliados.add(aliado)
-                    PONTOS -= 5 
-                        
+                    if PONTOS >= 5:        
+                        #aliado_image = pygame.image.load(path.join(img_dir,(LISTA_ALIADOS[0]))).convert_alpha()
+                        #Mob_aliado.image = pygame.transform.scale(Mob_aliado.image,(70,60))
+                        aliado = Mob_aliado()
+                        all_sprites.add(aliado)
+                        aliados.add(aliado)
+                        PONTOS -= 5 
+                            
             if event.type == pygame.KEYUP:
                 if event.key == pygame.K_LEFT: 
                     player.speedx = 0
@@ -377,10 +377,16 @@ try:
         hits = pygame.sprite.groupcollide(aliados,mobs,False,False)
         
         for aliado in hits:
-            aliados.health -= 1
-            if aliados.health <= 0:
-                aliados.kill()
-                aliado=Mob_aliado()
+            aliado.health -= 1
+            for mob in hits[aliado]:
+                mob.health -= 1
+                if aliado.health <= 0:
+                    aliado.kill()
+                    aliado=Mob_aliado()
+                elif mob.health <= 0:
+                    mob.kill()
+                    mob=Mob(player)
+                    PONTOS += 1
 #            current_time5 = pygame.time.get_ticks()
 #            if current_time5 - previous_time5 > DELAY_HIT and VIDA_ALIADO > 0:
 #                previous_time5 = current_time5
@@ -396,7 +402,7 @@ try:
 #            
 #            if VIDA_MOB <= 0:
 #                mobs.kill()
-#            
+                
         hits = pygame.sprite.spritecollide(player,mobs,False,pygame.sprite.collide_circle)
         
         if hits:
