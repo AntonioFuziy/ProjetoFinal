@@ -1,4 +1,3 @@
-
 import pygame
 from os import path
 import random
@@ -26,7 +25,7 @@ YELLOW = (255, 255, 0)
 GRAVIDADE  = 2
 JUMP_SIZE  = 30
 DELAY_TIRO = 1000 # milisegundos
-DELAY_HIT  = 5000 # milisegundos
+DELAY_HIT  = 1000 # milisegundos
 
 STILL   = 0
 JUMPING = 1
@@ -44,8 +43,9 @@ LISTA_MONSTROS = ['MobEspadaStop.png','Corsinha.jpg']
 LISTA_MONSTROS_INVERTIDO = ['MobEspada.png','CorsinhaInvertido.jpg']
 LISTA_ALIADOS = ['CorsinhaInvertido.jpg']
 
-VIDA = 3
-
+VIDA = 10
+VIDA_ALIADO = 3
+VIDA_MOB = 3
 
 class Player(pygame.sprite.Sprite):
     def __init__(self):
@@ -139,7 +139,7 @@ class Mob(pygame.sprite.Sprite):
         self.speedx = 3
         self.speedy = 0
 
-        self.health = 100
+        self.health = 3
         
         self.player = player
         
@@ -194,6 +194,8 @@ class Mob_aliado(pygame.sprite.Sprite):
         self.rect.y = HEIGHT - 120
         
         self.speedx = 3
+        
+        self.health = 2
         
     def update(self):
         
@@ -255,12 +257,18 @@ clock = pygame.time.Clock()
 previous_time = pygame.time.get_ticks()
 previous_time2 = pygame.time.get_ticks()
 previous_time3 = pygame.time.get_ticks()
+
+previous_time5 = pygame.time.get_ticks()
+previous_time6 = pygame.time.get_ticks()
+
 player = Player()
 background = Background()
 
 all_sprites = pygame.sprite.Group()
+
 all_sprites.add(background) 
 all_sprites.add(player)
+
 mobs = pygame.sprite.Group()
 bullets = pygame.sprite.Group()
 aliados = pygame.sprite.Group()
@@ -324,13 +332,14 @@ try:
                             bullet.image = pygame.transform.scale(bullet.image,(50,40))
                             all_sprites.add(bullet)
                             bullets.add(bullet)
-                        
+            if PONTOS >= 5:        
                 if event.key == pygame.K_w:
                     #aliado_image = pygame.image.load(path.join(img_dir,(LISTA_ALIADOS[0]))).convert_alpha()
                     #Mob_aliado.image = pygame.transform.scale(Mob_aliado.image,(70,60))
                     aliado = Mob_aliado()
                     all_sprites.add(aliado)
                     aliados.add(aliado)
+                    PONTOS -= 5 
                         
             if event.type == pygame.KEYUP:
                 if event.key == pygame.K_LEFT: 
@@ -343,17 +352,18 @@ try:
         all_sprites.update()
         
         hits = pygame.sprite.groupcollide(mobs, bullets, False, True)
+        
         for mob in hits:
-            mob.health -= 50
+            mob.health -= 1
             if mob.health <= 0:
                 mob.kill()
                 PONTOS += 5
                 mob=Mob(player)
                 #all_sprites.add(mob)
                 #mobs.add(mob)
-            text = font.render("Pontos: {0}".format(PONTOS), True, YELLOW)
-            textRect = text.get_rect()
-            textRect.center = (WIDTH // 2, 50)
+        text = font.render("Pontos: {0}".format(PONTOS), True, YELLOW)
+        textRect = text.get_rect()
+        textRect.center = (WIDTH // 2, 50)
 
         current_time = pygame.time.get_ticks()
         if len(mobs) < 1 and current_time - previous_time2 > 5000:
@@ -364,12 +374,31 @@ try:
             all_sprites.add(mob)
             mobs.add(mob)
         
-        hits = pygame.sprite.groupcollide(mobs,aliados,True,False)
-        if hits:
-            mob.kill()
-            pontos += 5
-            
+        hits = pygame.sprite.groupcollide(aliados,mobs,False,False)
+        
+        for aliado in hits:
+            aliados.health -= 1
+            if aliados.health <= 0:
+                aliados.kill()
+                aliado=Mob_aliado()
+#            current_time5 = pygame.time.get_ticks()
+#            if current_time5 - previous_time5 > DELAY_HIT and VIDA_ALIADO > 0:
+#                previous_time5 = current_time5
+#                VIDA_ALIADO -= 1   
+#                
+#            if VIDA_ALIADO <= 0:
+#                aliados.kill()
+#            
+#            current_time6 = pygame.time.get_ticks()
+#            if current_time6 - previous_time6 > DELAY_HIT and VIDA_MOB > 0:
+#                previous_time6 = current_time6
+#                VIDA_MOB -= 1
+#            
+#            if VIDA_MOB <= 0:
+#                mobs.kill()
+#            
         hits = pygame.sprite.spritecollide(player,mobs,False,pygame.sprite.collide_circle)
+        
         if hits:
             current_time2 = pygame.time.get_ticks()
             if current_time2 - previous_time3 > DELAY_HIT and VIDA > 0:
