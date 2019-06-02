@@ -115,8 +115,9 @@ while i < len(lista_mes) and mes in lista_mes:
         print(i+1)
     i+=1
 '''
-'''
+
 #DEU ERRADO
+'''
 i=0
 lista_vazia=[]
 palavra = input('Digite uma palavra: ')
@@ -216,3 +217,100 @@ def soma_impares(lista):
 lista=[0,1,2,3]
 print(soma_impares(lista))
 '''
+
+#NAO DEU CERTO
+'''
+def acha_bigramas(palavra):
+    i=0
+    lista_bigramas=[]
+    while i < len(palavra):
+         lista_bigramas.append(palavra[i:i+2])
+         i+=1
+    return lista_bigramas
+
+palavra = 'banana'
+print(acha_bigramas(palavra))
+'''
+
+'''
+def capitaliza(palavra):
+    i=0
+    while i < len(palavra):
+        string = palavra[0].upper() + palavra[1:i+1]
+        i+=1
+    return string
+
+palavra='banana'
+print(capitaliza(palavra))
+'''
+'''
+def alunos_impares(lista):
+    i=0
+    lista_impares=[]
+    while i < len(lista):
+        if i % 2 != 0:
+            lista_impares.append(lista[i])
+        i+=1
+    return lista_impares
+
+lista=['antonio','joao','isa','lari','fernando','mariana','pedro']
+print(alunos_impares(lista))
+'''
+'''
+def separa_trios(lista_alunos):
+    i=0
+    lista_trios=[]
+    while i<len(lista_alunos):
+        lista_trios.append(lista_alunos[i:i+3])
+        i+=1
+    return lista_trios
+
+lista_alunos=['antonio','joao','isa','lari','fernando','mariana','pedro']
+print(separa_trios(lista_alunos))
+'''
+'''
+def remove_vogais(palavra):
+    i=0
+    while i<len(palavra):
+        if palavra[i] == 'a' or palavra[i]== 'e' or palavra[i]=='i' or palavra[i]=='o' or palavra[i]=='u':
+            palavra[i].clear()
+        i+=1
+    return palavra
+
+palavra='antonio'
+print(remove_vogais(palavra))
+'''
+'''
+def conta_bigramas(palavra):
+    dic={}
+    i=0
+    while i < len(palavra)-1:
+        bigrama = palavra[i] + palavra[i+1]
+        if bigrama in dic:
+            dic[bigrama]+=1
+        else:
+            dic[bigrama] = 1
+        i+=1
+    return dic
+palavra='banana nanica'
+print(conta_bigramas(palavra))
+'''
+'''
+def aniversariantes_setembro(dicionario):
+    dic={}
+    for k,v in dicionario.items():
+        if dicionario[k][3:5] == '09':
+            dic[k] = v
+    return dic
+dicionario={'antonio':'22/05/2001', 'mariana':'22/09/1981'}
+print(aniversariantes_setembro(dicionario))
+'''
+
+def calcula_tempo(dicionario):
+    dic={}
+    for k,v in dicionario.items():
+        dic[k]=(200/v)**(1/2)
+    return dic
+
+dicionario={'antonio':'2','joao':'1','ramon':'0.5'}
+print(calcula_tempo(dicionario))
