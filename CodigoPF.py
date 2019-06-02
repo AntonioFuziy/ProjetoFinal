@@ -30,8 +30,10 @@ DELAY_HIT  = 1000 # milisegundos
 DELAY_SPAWN = random.randint(1,3)
 
 STILL   = 0
-JUMPING = 1
-FALLING = 2
+WALKING = 1
+FALLING = 3
+JUMPING = 2
+SHOOTING = 4
 
 ROUNDS = 1
 DURACAO_ROUNDS = 15000
@@ -57,18 +59,51 @@ VIDA = 10
 VIDA_ALIADO = 3
 VIDA_MOB = 3
 
+def load_spritesheet(spritesheet,rows,columns):
+    sprite_width =spritesheet.get_width() // columns
+    sprite_height = spritesheet.get_height() // rows
+    sprites = []
+    for row in range(rows):
+        for column in range(columns):
+            x = column*sprite_width
+            y = row*sprite_height
+            dest_rect = pygame.Rect(x, y, sprite_width, sprite_height)
+            
+            image = pygame.Surface((sprite_width, sprite_height))
+            
+            image.blit(spritesheet, (0, 0), dest_rect)
+            sprites.append(image)
+    return sprites
+            
 class Player(pygame.sprite.Sprite):
-    def __init__(self):
+    def __init__(self, player_sheet):
         pygame.sprite.Sprite.__init__(self)
         self.state = STILL
         
-        personagem = pygame.image.load(path.join(img_dir,personagem_frente)).convert_alpha()
+        player_sheet = pygame.transform.scale(player_sheet,(480,480))
         
-        self.image = personagem
-        self.image = pygame.transform.scale(personagem,(80,100))
-        self.image.set_colorkey(BLACK)
+        spritesheet = load_spritesheet(player_sheet,3,3)
+        self.animations = {
+            WALKING: spritesheet[0:7],
+            STILL: spritesheet[7:12],
+            SHOOTING: spritesheet[12:18],
+            }
+        
+        self.state = WALKING
+        
+        self.animation = self.animations[self.state]
+        
+        self.frame = 0
+        self.image = self.animation[self.frame]
+        
+        #personagem = pygame.image.load(path.join(img_dir,personagem_frente)).convert_alpha()
+        
+        #self.image = personagem
+        #self.image = pygame.transform.scale(personagem,(80,100))
+        #self.image.set_colorkey(BLACK)
         
         self.rect = self.image.get_rect()
+        
         self.rect.centerx = WIDTH/2
         self.rect.bottom = HEIGHT - 120
         
@@ -77,15 +112,49 @@ class Player(pygame.sprite.Sprite):
         
         self.radius =  int(self.rect.width * .85 / 2)
         self.health = 3
-
+        
+        self.last_update = pygame.time.get_ticks()
+        self.frame_ticks = 300
+        
     def jump(self):
         if self.state == STILL:
             self.speedy -= JUMP_SIZE
             self.state = JUMPING
 
     def update(self):
+#        if self.speedx < 0:
+#            player_sheet = pygame.transform.scale(player_sheet,(200,200))
+        
+#            spritesheet = load_spritesheet(player_sheet,3,3)
+            
+#            self.animations = {
+#            STILL: spritesheet[0:3], 
+#            WALKING: spritesheet[0:9],
+#            JUMPING: spritesheet[6:9],
+#            }
+            
+        now = pygame.time.get_ticks()
+        
+        elapsed_ticks = now - self.last_update
+        
+        if elapsed_ticks > self.frame_ticks:
+            
+            self.last_update = now
+            
+            self.frame += 1
+            
+            self.animation = self.animations[self.state]
+            
+        if self.frame >= len(self.animation):
+            self.frame = 0
+        
+        center = self.rect.center
+        
+        self.image = self.animation[self.frame]
+        self.rect = self.image.get_rect()
+        self.rect.center = center
+        
         self.rect.x += self.speedx
-        #self.jump()
         
         if self.rect.right > WIDTH:
             self.rect.right = WIDTH
@@ -130,7 +199,6 @@ class Background(pygame.sprite.Sprite):
         if self.rect.right < WIDTH:
             self.rect.right = WIDTH
 
-        #print(self.rect,self.speedx)
 
 class Mob(pygame.sprite.Sprite):
     
@@ -164,17 +232,7 @@ class Mob(pygame.sprite.Sprite):
         
         if self.rect.bottom > HEIGHT - 120:
             self.rect.bottom = HEIGHT - 120
-#        
-#        if self.speedx >= 0:
-#            mob_image = pygame.image.load(path.join(img_dir,(LISTA_MONSTROS[0]))).convert_alpha()
-#            self.image = mob_image
-#            self.image = pygame.transform.scale(mob_image,(70,60))
-#        
-#        if self.speedx < 0:
-#            mob_image = pygame.image.load(path.join(img_dir,(LISTA_MONSTROS[0]))).convert_alpha()
-#            self.image = mob_image
-#            self.image = pygame.transform.scale(mob_image,(70,60))
-            
+
         if abs(self.rect.centerx - player.rect.centerx) < 90:
            self.speedx = 0
         if abs(self.rect.centerx - player.rect.centerx) >= 90:
@@ -269,7 +327,9 @@ previous_time6 = pygame.time.get_ticks()
 previous_time7 = pygame.time.get_ticks()
 previous_time8 = pygame.time.get_ticks()
 
-player = Player()
+player_sheet = pygame.image.load(path.join(img_dir,'Personagem_GIF_Frente.png')).convert_alpha()
+
+player = Player(player_sheet)
 background = Background()
 
 all_sprites = pygame.sprite.Group()
@@ -303,24 +363,23 @@ try:
             
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_RIGHT:
-                    #LEFT = False
-                    #RIGHT = True
+                    player_sheet = pygame.image.load(path.join(img_dir,'Personagem_GIF_Frente.png')).convert_alpha()
+                    player.state = WALKING
                     SENTIDO = 1
                     player.speedx += 5
                     background.speedx -= 7
-                    #if WALKCOUNT + 1 >= 10:
-                    #    WALKCOUNT = 0
-                    #if RIGHT:
-                    player.image = pygame.image.load(path.join(img_dir, 'PersonagemTeste.png')).convert_alpha()
-                    player.image = pygame.transform.scale(player.image,(80,100))
+                    #player.image = pygame.image.load(path.join(img_dir, 'PersonagemTeste.png')).convert_alpha()
+                    #player.image = pygame.transform.scale(player.image,(80,100))
                     
                 if event.key == pygame.K_LEFT:
                     SENTIDO = 2
+                    player_sheet = pygame.image.load(path.join(img_dir,'Personagem_GIF_Frente.png')).convert_alpha()
+                    player.state = STILL
                     player.speedx -= 5
                     background.speedx += 7
                     personagem = pygame.image.load(path.join(img_dir, personagem_traz))
-                    player.image = personagem
-                    player.image = pygame.transform.scale(personagem,(80,100))
+                    #player.image = personagem
+                    #player.image = pygame.transform.scale(personagem,(80,100))
         
                 if event.key == pygame.K_UP:
                     player.jump()
@@ -358,6 +417,7 @@ try:
                     player.speedx = 0
                     background.speedx = 0
                 if event.key == pygame.K_RIGHT:
+                    player.state = WALKING
                     player.speedx = 0
                     background.speedx = 0
             
