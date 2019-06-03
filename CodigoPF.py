@@ -82,14 +82,14 @@ class Player(pygame.sprite.Sprite):
         
         player_sheet = pygame.transform.scale(player_sheet,(480,480))
         
-        spritesheet = load_spritesheet(player_sheet,3,3)
+        spritesheet = load_spritesheet(player_sheet,4,4)
         self.animations = {
             WALKING: spritesheet[0:7],
             STILL: spritesheet[7:12],
             SHOOTING: spritesheet[12:18],
             }
         
-        self.state = WALKING
+        self.state = STILL
         
         self.animation = self.animations[self.state]
         
@@ -389,6 +389,7 @@ try:
                     if current_time - previous_time > DELAY_TIRO:
                         previous_time = current_time
                         if SENTIDO == 1:
+                            player.state = SHOOTING
                             bullet = Bullet(player.rect.right, player.rect.centery, 7)
                             bala = pygame.image.load(path.join(img_dir, bala_frente)).convert_alpha() 
                             bullet.image = bala
@@ -413,6 +414,7 @@ try:
                         PONTOS -= 5 
                             
             if event.type == pygame.KEYUP:
+                player.state = STILL
                 if event.key == pygame.K_LEFT: 
                     player.speedx = 0
                     background.speedx = 0
