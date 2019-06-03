@@ -16,41 +16,57 @@ GREEN  = (0, 255, 0)
 BLUE   = (0, 0, 255)
 YELLOW = (255, 255, 0)
 
+GALHO_LISTA = [(450, HEIGHT - 140),
+               (200, HEIGHT - 290),
+               (200, HEIGHT - 440),
+               (450, HEIGHT - 590),
+               (450, HEIGHT - 740)]
+
 class Player(pygame.sprite.Sprite):
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
         
         self.image = pygame.image.load(path.join(img_dir,'PersonagemTeste.png')).convert_alpha()
-        self.image = pygame.transform.scale(self.image,(50,50))
+        self.image = pygame.transform.scale(self.image,(100,100))
         
         self.image.set_colorkey(BLACK)
         
         self.rect = self.image.get_rect()
-        self.rect.x = WIDTH/2 - 100
-        self.rect.y = HEIGHT - 50
+        self.rect.right = WIDTH/2 - 50
+        self.rect.y = HEIGHT - 100
         
         self.pos = 0
         
     def update(self):
         self.rect.x += self.pos
         
-        if self.rect.x > WIDTH/2 + 50:
-            self.rect.x = WIDTH/2 + 50
-        if self.rect.x < WIDTH/2 - 100:
-            self.rect.x = WIDTH/2 - 100
+        if self.rect.right < WIDTH/2 - 50:
+            self.rect.right = WIDTH/2 - 50
+        if self.rect.left > WIDTH/2 + 50:
+            self.rect.left = WIDTH/2 + 50
+
+class Platform(pygame.sprite.Sprite):
+    def __init__(self, x, y, w, h):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = pygame.Surface((w,h))
+        self.image.fill(BLUE)
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y    
+
+class Galho(pygame.sprite.Sprite):
+    def __init__(self, x, y):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = pygame.image.load(path.join(img_dir,'Goomba.png')).convert_alpha()
+        self.image = pygame.transform.scale(self.image,(150,50))
+        self.image.set_colorkey(BLACK)
         
-#class Tronco(pygame.sprite.Sprite):
-#    def __init__(self):
-#        pygame.sprite.Sprite.__init__(self)
-#        
-#        self.image = pygame.image.load(path.join(img_dir,'Tronco.png')).convert_alpha()
-#        
-#        self.image.set_colorkey(BLACK)
-#        
-#        self.rect.x = WIDTH/2 - 50
-#        self.rect.y = HEIGHT
-#        
-#    def update(self):
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+        
+    def update(self):
+        pass
 
 pygame.init()
 pygame.mixer.init()
@@ -58,14 +74,16 @@ screen = pygame.display.set_mode((WIDTH,HEIGHT))
 clock = pygame.time.Clock()
 pygame.display.set_caption("Timberman!!!")
 
-player = Player()
-
 all_sprites = pygame.sprite.Group()
+galho = pygame.sprite.Group()
+player = Player()
 all_sprites.add(player)
 
+for branch in GALHO_LISTA:
+    g = Galho(*branch)
+    all_sprites.add(g)
+    galho.add(g)
 
-#tronco = Tronco()
-        
 try:        
     running = True
             
@@ -80,22 +98,35 @@ try:
             
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_RIGHT:
-                    player.pos = 150
-                    
+                    player.pos = 200
+
                 if event.key == pygame.K_LEFT:
-                    player.pos = -200
-                
+                    player.pos = -250
+                    
+                if event.key == pygame.K_RIGHT or event.key == pygame.K_LEFT:
+                    for branch in galho:
+                        branch.rect.y += 100
+                        if branch.rect.top >= HEIGHT:
+                            branch.kill()
+
             if event.type == pygame.KEYUP:
                 if event.key == pygame.K_LEFT:
                     player.pos = 0
                 if event.key == pygame.K_RIGHT:
                     player.pos = 0
             
-        all_sprites.update()
-               # if event.key == pygame.K_SPACE:
+        while len(galho) < 4:
+            lista_posicao = [200, 450]
+            random.shuffle(lista_posicao)
+            g = Galho(lista_posicao[0], 10)
+            all_sprites.add(g)
+            galho.add(g)
 
-                    
-#hits:
+        all_sprites.update()
+
+        hits = pygame.sprite.spritecollide(player, galho, False)
+        if hits:
+            running = False
                     
         screen.fill(BLACK)
 #        screen.blit(background.image, background.rect)
