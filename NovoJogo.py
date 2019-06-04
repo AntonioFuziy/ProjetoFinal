@@ -37,7 +37,7 @@ class Player(pygame.sprite.Sprite):
         self.image.set_colorkey(BLACK)
         
         self.rect = self.image.get_rect()
-        self.rect.right = WIDTH/2 - 50
+        self.rect.right = WIDTH/2 - 30
         self.rect.y = HEIGHT - 100
         
         self.pontos = 0
@@ -49,10 +49,10 @@ class Player(pygame.sprite.Sprite):
         self.rect.x += self.pos
         self.pontos += self.score
         
-        if self.rect.right < WIDTH/2 - 50:
-            self.rect.right = WIDTH/2 - 50
-        if self.rect.left > WIDTH/2 + 50:
-            self.rect.left = WIDTH/2 + 50
+        if self.rect.right < WIDTH/2 - 30:
+            self.rect.right = WIDTH/2 - 30
+        if self.rect.left > WIDTH/2 + 30:
+            self.rect.left = WIDTH/2 + 30
         self.score = 0
 
 class HealthBar(pygame.sprite.Sprite):
@@ -81,7 +81,6 @@ class Galho(pygame.sprite.Sprite):
     def __init__(self, x, y):
         pygame.sprite.Sprite.__init__(self)
         self.image = pygame.image.load(path.join(img_dir,'Galho.png')).convert_alpha()
-        #self.image = pygame.transform.scale(self.image,(150,50))
         self.image.set_colorkey(BLACK)
         
         self.rect = self.image.get_rect()
@@ -100,7 +99,6 @@ class Tronco(pygame.sprite.Sprite):
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
         self.image = pygame.image.load(path.join(img_dir,'Tronco3.png')).convert_alpha()
-        #self.image = pygame.transform.scale(self.image,(100,600))
         self.image.set_colorkey(BLACK)
 
         self.rect = self.image.get_rect()
