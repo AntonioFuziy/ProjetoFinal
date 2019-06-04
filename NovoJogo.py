@@ -1,6 +1,7 @@
 import pygame
 from os import path
 import random
+import time
 
 img_dir = path.join(path.dirname(__file__),'img')
 snd_dir = path.join(path.dirname(__file__), 'snd2')
@@ -111,6 +112,10 @@ background = pygame.image.load(path.join(img_dir,'Background.jpg'))
 background = pygame.transform.scale(background,(800,600))
 background_rect = background.get_rect()
 
+imgfundo = pygame.image.load(path.join(img_dir,'MenuFundo.jpg'))
+imgfundo = pygame.transform.scale(imgfundo,(800,600))
+imgfundo_rect = imgfundo.get_rect()
+
 pygame.init()
 pygame.mixer.init()
 
@@ -146,8 +151,28 @@ for branch in GALHO_LISTA:
 
 try:        
     pygame.mixer.music.play(loops=-1)
-    running = True
-            
+    
+    
+    menu = True
+
+    while menu:
+        clock.tick(FPS)
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SPACE or event.key == pygame.K_RETURN:
+                    menu = False
+
+        #player.pos = -220
+        #player.image = pygame.image.load(path.join(img_dir,'Pulica3_Invertido.png')).convert_alpha()
+        #player.image = pygame.transform.scale(player.image,(120,120)) 
+
+        screen.fill(BLACK)
+        screen.blit(imgfundo, imgfundo_rect)
+        pygame.display.flip()
+    running = True    
     while running:
     
         clock.tick(FPS)
@@ -205,25 +230,26 @@ try:
             current_time = pygame.time.get_ticks()
             if current_time - previous_time > TAXA_VIDA:
                 health.regen = -5
-                print('c')
-                print(player.pontos)
                 previous_time = current_time
 
         elif player.pontos > 49:
-            TAXA_VIDA = 300
+            TAXA_VIDA = 150
             current_time = pygame.time.get_ticks()
             if current_time - previous_time > TAXA_VIDA:
                 health.regen = -5
-                print('b')
-                print(player.pontos)
+                previous_time = current_time
+
+        elif player.pontos > 19:
+            TAXA_VIDA = 200
+            current_time = pygame.time.get_ticks()
+            if current_time - previous_time > TAXA_VIDA:
+                health.regen = -5
                 previous_time = current_time  
               
         elif player.pontos > 0:
             current_time = pygame.time.get_ticks()
             if current_time - previous_time > TAXA_VIDA:
                 health.regen = -5
-                print('a')
-                print(player.pontos)
                 previous_time = current_time
 
         
