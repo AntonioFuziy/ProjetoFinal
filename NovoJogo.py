@@ -3,6 +3,8 @@ from os import path
 import random
 
 img_dir = path.join(path.dirname(__file__),'img')
+snd_dir = path.join(path.dirname(__file__), 'snd2')
+
 
 WIDTH = 800
 HEIGHT = 600 
@@ -29,7 +31,7 @@ class Player(pygame.sprite.Sprite):
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
         
-        self.image = pygame.image.load(path.join(img_dir,'Pulica1_Invertido.png')).convert_alpha()
+        self.image = pygame.image.load(path.join(img_dir,'Pulica1.png')).convert_alpha()
         self.image = pygame.transform.scale(self.image,(120,120))
         
         self.image.set_colorkey(BLACK)
@@ -110,8 +112,14 @@ class Tronco(pygame.sprite.Sprite):
 background = pygame.image.load(path.join(img_dir,'Background.jpg'))
 background = pygame.transform.scale(background,(800,600))
 background_rect = background.get_rect()
+
 pygame.init()
 pygame.mixer.init()
+
+pygame.mixer.music.load(path.join(snd_dir,'MusicaJogo.ogg'))
+pygame.mixer.music.set_volume(0.4)
+destroy_sound = pygame.mixer.Sound(path.join(snd_dir,'Madeira_hit.wav'))
+
 screen = pygame.display.set_mode((WIDTH,HEIGHT))
 clock = pygame.time.Clock()
 pygame.display.set_caption("Timberman!!!")
@@ -139,6 +147,7 @@ for branch in GALHO_LISTA:
     galho.add(g)
 
 try:        
+    pygame.mixer.music.play(loops=-1)
     running = True
             
     while running:
@@ -154,12 +163,14 @@ try:
                 if event.key == pygame.K_RIGHT:
                     player.pos = 170
                     player.image = pygame.image.load(path.join(img_dir,'Pulica3_Invertido.png')).convert_alpha()
-                    player.image = pygame.transform.scale(player.image,(120,120)) 
+                    player.image = pygame.transform.scale(player.image,(120,120))
+                    destroy_sound.play()
 
                 if event.key == pygame.K_LEFT:
                     player.pos = -220
                     player.image = pygame.image.load(path.join(img_dir,'Pulica3.png')).convert_alpha()
                     player.image = pygame.transform.scale(player.image,(120,120))
+                    destroy_sound.play()
                     
                 if event.key == pygame.K_RIGHT or event.key == pygame.K_LEFT:
                     health.regen = 10
@@ -171,6 +182,7 @@ try:
                         branch.rect.y += 100
                         if branch.rect.top >= HEIGHT:
                             branch.kill()
+                           
 
             if event.type == pygame.KEYUP:
                 if event.key == pygame.K_LEFT:
