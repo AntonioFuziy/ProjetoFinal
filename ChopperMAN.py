@@ -127,7 +127,7 @@ destroy_sound = pygame.mixer.Sound(path.join(snd_dir,'Madeira_hit.wav'))
 
 screen = pygame.display.set_mode((WIDTH,HEIGHT))
 clock = pygame.time.Clock()
-pygame.display.set_caption("Timberman!!!")
+pygame.display.set_caption("ChopperMAN!!!")
 
 previous_time = pygame.time.get_ticks()
 
