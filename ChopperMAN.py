@@ -22,11 +22,11 @@ YELLOW = (255, 255, 0)
 TAXA_VIDA = 200
 VIDA = 100
 
-GALHO_LISTA = [(450, HEIGHT - 140),
-               (200, HEIGHT - 290),
-               (200, HEIGHT - 440),
-               (450, HEIGHT - 590),
-               (450, HEIGHT - 740)]
+GALHO_LISTA = [(450, HEIGHT - 120),
+               (200, HEIGHT - 270),
+               (200, HEIGHT - 420),
+               (450, HEIGHT - 570),
+               (450, HEIGHT - 720)]
 
 class Player(pygame.sprite.Sprite):
     def __init__(self):
