@@ -19,7 +19,7 @@ GREEN  = (0, 255, 0)
 BLUE   = (0, 0, 255)
 YELLOW = (255, 255, 0)
 
-TAXA_VIDA = 500
+TAXA_VIDA = 200
 VIDA = 100
 
 GALHO_LISTA = [(450, HEIGHT - 140),
@@ -75,6 +75,8 @@ class HealthBar(pygame.sprite.Sprite):
         if self.VIDA >= 100:
             self.regen = -5
         self.VIDA += self.regen
+        if self.VIDA < 0:
+            self.VIDA = 0
         self.image = pygame.transform.scale(self.image,(self.VIDA,20))
         self.regen = 0
 
@@ -149,30 +151,32 @@ for branch in GALHO_LISTA:
     all_sprites.add(g)
     galho.add(g)
 
-try:        
+try:
+    print("------------------------")
+    print("       CHOPPERMAN       ")
+    print("\nOs controles do jogo são:\nTecla [Direita]  - Mover para a direita\nTecla [Esquerda] - Mover para a esquerda")
+    print("Quantas madeiras você consegue cortar?\nBoa sorte!\n")
+    print("------------------------")        
     pygame.mixer.music.play(loops=-1)
     
-    
+    running = True
     menu = True
 
     while menu:
-        clock.tick(FPS)
+        #clock.tick(FPS)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                pygame.quit()
+                running = False
+                menu = False
 
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE or event.key == pygame.K_RETURN:
                     menu = False
 
-        #player.pos = -220
-        #player.image = pygame.image.load(path.join(img_dir,'Pulica3_Invertido.png')).convert_alpha()
-        #player.image = pygame.transform.scale(player.image,(120,120)) 
-
         screen.fill(BLACK)
         screen.blit(imgfundo, imgfundo_rect)
         pygame.display.flip()
-    running = True    
+
     while running:
     
         clock.tick(FPS)
@@ -187,20 +191,19 @@ try:
                     player.pos = 170
                     player.image = pygame.image.load(path.join(img_dir,'Pulica3_Invertido.png')).convert_alpha()
                     player.image = pygame.transform.scale(player.image,(120,120))
-                    destroy_sound.play()
 
                 if event.key == pygame.K_LEFT:
                     player.pos = -220
                     player.image = pygame.image.load(path.join(img_dir,'Pulica3.png')).convert_alpha()
                     player.image = pygame.transform.scale(player.image,(120,120))
-                    destroy_sound.play()
                     
                 if event.key == pygame.K_RIGHT or event.key == pygame.K_LEFT:
-                    health.regen = 10
+                    health.regen = 5
                     player.score = 1
                     text = font.render("Pontos: {0}".format(player.pontos), True, YELLOW)
                     textRect = text.get_rect()
                     textRect.center = (WIDTH // 2 - 300, 50)
+                    destroy_sound.play()
                     for branch in galho:
                         branch.rect.y += 100
                         if branch.rect.top >= HEIGHT:
@@ -225,38 +228,55 @@ try:
             all_sprites.add(g)
             galho.add(g)
 
-        if player.pontos > 99:
-            TAXA_VIDA = 100
+        if player.pontos > 199:
+            TAXA_VIDA = 15
             current_time = pygame.time.get_ticks()
             if current_time - previous_time > TAXA_VIDA:
-                health.regen = -5
+                health.regen = -1
+                previous_time = current_time
+
+        if player.pontos > 149:
+            TAXA_VIDA = 30
+            current_time = pygame.time.get_ticks()
+            if current_time - previous_time > TAXA_VIDA:
+                health.regen = -1
+                previous_time = current_time
+
+        elif player.pontos > 99:
+            TAXA_VIDA = 50
+            current_time = pygame.time.get_ticks()
+            if current_time - previous_time > TAXA_VIDA:
+                health.regen = -1
                 previous_time = current_time
 
         elif player.pontos > 49:
-            TAXA_VIDA = 150
+            TAXA_VIDA = 75
             current_time = pygame.time.get_ticks()
             if current_time - previous_time > TAXA_VIDA:
-                health.regen = -5
+                health.regen = -1
                 previous_time = current_time
 
         elif player.pontos > 19:
-            TAXA_VIDA = 200
+            TAXA_VIDA = 100
             current_time = pygame.time.get_ticks()
             if current_time - previous_time > TAXA_VIDA:
-                health.regen = -5
+                health.regen = -1
                 previous_time = current_time  
               
         elif player.pontos > 0:
             current_time = pygame.time.get_ticks()
             if current_time - previous_time > TAXA_VIDA:
-                health.regen = -5
+                health.regen = -1
                 previous_time = current_time
 
-        
+        if health.VIDA <= 0:
+            running = False
+
         all_sprites.update()
 
         hits = pygame.sprite.spritecollide(player, galho, False)
         if hits:
+            print("PONTOS: ",player.pontos-1)
             running = False
                     
         screen.fill(BLACK)
