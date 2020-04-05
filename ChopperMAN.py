@@ -2,6 +2,7 @@ import pygame
 from os import path
 import random
 import time
+import pandas as pd
 
 img_dir = path.join(path.dirname(__file__),'img')
 snd_dir = path.join(path.dirname(__file__), 'snd2')
@@ -277,6 +278,23 @@ try:
         hits = pygame.sprite.spritecollide(player, galho, False)
         if hits:
             print("PONTOS: ",player.pontos-1)
+            
+            #Armazenamento de record:
+#            Score = pd.read_excel('Score.xlsx')
+            
+#            print(Score['Score'][1])
+
+#            Score_sequence = Score.sort_values(by='Score')
+
+#            print(Score_sequence)
+
+#            Score.to_excel('Score.xlsx')
+
+            #if player.pontos-1 == Record:
+            #    print('Congratulations you are the best, now the record is yours!!!')
+            #else:
+            #    print('You could not beat the record, try again!')
+            
             running = False
                     
         screen.fill(BLACK)
